@@ -1,4 +1,6 @@
 #![feature(allocator_api)]
+// ignore-linux
+// ignore-macos
 
 use std::ptr::NonNull;
 use std::alloc::{Global, Alloc, Layout, System};
@@ -80,4 +82,6 @@ fn main() {
     check_overalign_requests(Global);
     global_to_box();
     box_to_global();
+
+    panic!("Making sure this does not land in rustc");
 }

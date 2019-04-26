@@ -113,6 +113,9 @@ fn compile_fail_miri(opt: bool) {
 }
 
 fn test_runner(_tests: &[&()]) {
+    std::env::set_var("MIRI_BACKTRACE", "1");
+    std::env::set_var("MIRI_LOG", "info");
+
     run_pass_miri(false);
     run_pass_miri(true);
 
