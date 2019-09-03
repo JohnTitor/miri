@@ -280,7 +280,7 @@ impl<'mir, 'tcx> Machine<'mir, 'tcx> for Evaluator<'tcx> {
         } else {
             let (stacks, base_tag) = Stacks::new_allocation(
                 id,
-                Size::from_bytes(alloc.size as u64),
+                Size::from_bytes(alloc.size.bytes()),
                 Rc::clone(&memory_extra.stacked_borrows),
                 kind,
             );
@@ -292,6 +292,7 @@ impl<'mir, 'tcx> Machine<'mir, 'tcx> for Evaluator<'tcx> {
         }
         let mut stacked_borrows = memory_extra.stacked_borrows.borrow_mut();
         let alloc: Allocation<Tag, Self::AllocExtra> = Allocation {
+            bytes: alloc.inspect_with_undef_and_ptr_outside_interpreter(0..alloc.len()),
             relocations: Relocations::from_presorted(
                 alloc.relocations().iter()
                     // The allocations in the relocations (pointers stored *inside* this allocation)
@@ -306,7 +307,7 @@ impl<'mir, 'tcx> Machine<'mir, 'tcx> for Evaluator<'tcx> {
                     })
                     .collect()
             ),
-            undef_mask: alloc.undef_mask(),
+            undef_mask: *alloc.undef_mask(),
             size: alloc.size,
             align: alloc.align,
             mutability: alloc.mutability,
