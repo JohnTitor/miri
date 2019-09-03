@@ -280,21 +280,20 @@ impl<'mir, 'tcx> Machine<'mir, 'tcx> for Evaluator<'tcx> {
         } else {
             let (stacks, base_tag) = Stacks::new_allocation(
                 id,
-                Size::from_bytes(alloc.bytes.len() as u64),
+                Size::from_bytes(alloc.size as u64),
                 Rc::clone(&memory_extra.stacked_borrows),
                 kind,
             );
             (Some(stacks), base_tag)
         };
         if kind != MiriMemoryKind::Static.into() {
-            assert!(alloc.relocations.is_empty(), "Only statics can come initialized with inner pointers");
+            assert!(alloc.relocations().is_empty(), "Only statics can come initialized with inner pointers");
             // Now we can rely on the inner pointers being static, too.
         }
         let mut stacked_borrows = memory_extra.stacked_borrows.borrow_mut();
         let alloc: Allocation<Tag, Self::AllocExtra> = Allocation {
-            bytes: alloc.bytes,
             relocations: Relocations::from_presorted(
-                alloc.relocations.iter()
+                alloc.relocations().iter()
                     // The allocations in the relocations (pointers stored *inside* this allocation)
                     // all get the base pointer tag.
                     .map(|&(offset, ((), alloc))| {
@@ -307,7 +306,8 @@ impl<'mir, 'tcx> Machine<'mir, 'tcx> for Evaluator<'tcx> {
                     })
                     .collect()
             ),
-            undef_mask: alloc.undef_mask,
+            undef_mask: alloc.undef_mask(),
+            size: alloc.size,
             align: alloc.align,
             mutability: alloc.mutability,
             extra: AllocExtra {

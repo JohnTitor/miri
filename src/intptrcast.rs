@@ -63,7 +63,7 @@ impl<'mir, 'tcx> GlobalState {
                 // This never overflows because `int >= glb`
                 let offset = int - glb;
                 // If the offset exceeds the size of the allocation, this access is illegal
-                if offset <= memory.get(alloc_id)?.bytes.len() as u64 {
+                if offset <= memory.get(alloc_id)?.size as u64 {
                     // This pointer is untagged because it was created from a cast
                     Pointer::new_with_tag(alloc_id, Size::from_bytes(offset), Tag::Untagged)
                 } else {
