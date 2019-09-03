@@ -292,7 +292,7 @@ impl<'mir, 'tcx> Machine<'mir, 'tcx> for Evaluator<'tcx> {
         }
         let mut stacked_borrows = memory_extra.stacked_borrows.borrow_mut();
         let alloc: Allocation<Tag, Self::AllocExtra> = Allocation {
-            bytes: alloc.inspect_with_undef_and_ptr_outside_interpreter(0..alloc.len()),
+            bytes: alloc.inspect_with_undef_and_ptr_outside_interpreter(0..alloc.len()).to_vec(),
             relocations: Relocations::from_presorted(
                 alloc.relocations().iter()
                     // The allocations in the relocations (pointers stored *inside* this allocation)
